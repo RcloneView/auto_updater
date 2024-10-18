@@ -15,9 +15,12 @@ environment:
   flutter: ">=3.3.0"
 
 dependencies:
-  auto_updater_macos: ^0.2.0
-  auto_updater_platform_interface: ^0.2.0
-  auto_updater_windows: ^0.2.1
+  auto_updater_macos:
+    path: ../auto_updater_macos
+  auto_updater_platform_interface:
+    path: ../auto_updater_platform_interface
+  auto_updater_windows:
+    path: ../auto_updater_windows
   flutter:
     sdk: flutter
   json_annotation: ^4.8.0
