@@ -50,7 +50,9 @@ AutoUpdater* AutoUpdater::GetInstance() {
 
 AutoUpdater::AutoUpdater() {
   if (lazySingleton != nullptr) {
-    throw std::invalid_argument("AutoUpdater has already been initialized");
+    // throw std::invalid_argument("AutoUpdater has already been initialized");
+    // Just ignore the second initialization attempt for multiple windows
+    return;
   }
 
   lazySingleton = this;
