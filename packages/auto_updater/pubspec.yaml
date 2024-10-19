@@ -22,7 +22,7 @@ dependencies:
       ref: patch-for-multiple-windows
   auto_updater_platform_interface:
     git:
-      path: packages/auto_updater_patlform_interface
+      path: packages/auto_updater_platform_interface
       url: https://github.com/RcloneView/auto_updater.git
       ref: patch-for-multiple-windows
   auto_updater_windows:
