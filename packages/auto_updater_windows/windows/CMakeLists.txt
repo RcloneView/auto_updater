@@ -17,9 +17,41 @@ cmake_policy(VERSION 3.14...3.25)
 set(PLUGIN_NAME "auto_updater_windows_plugin")
 
 # WinSparkle
+#
+# Pick the prebuilt binaries that match the architecture being built. The
+# bundled WinSparkle ships x86 in "Release/", x64 in "x64/Release/" and Arm64
+# in "ARM64/Release/"; the import library is architecture-specific, so linking
+# the wrong one fails with LNK1112.
+#
+# Flutter passes the target architecture to CMake as the Visual Studio
+# generator platform (-A x64 / -A ARM64). CMAKE_SYSTEM_PROCESSOR must not be
+# used here: it reports the host, which is wrong whenever an Arm64 machine
+# cross-builds for x64 or vice versa.
 set(WIN_SPARKLE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/WinSparkle-0.8.1")
-set(WIN_SPARKLE_BINARIES "${WIN_SPARKLE_DIR}/x64/Release/WinSparkle.dll")
-set(WIN_SPARKLE_LIBRARIES "${WIN_SPARKLE_DIR}/x64/Release/WinSparkle.lib")
+
+if(CMAKE_GENERATOR_PLATFORM)
+  set(WIN_SPARKLE_PLATFORM "${CMAKE_GENERATOR_PLATFORM}")
+else()
+  set(WIN_SPARKLE_PLATFORM "${CMAKE_VS_PLATFORM_NAME}")
+endif()
+
+if(WIN_SPARKLE_PLATFORM MATCHES "^([Aa][Rr][Mm]64)$")
+  set(WIN_SPARKLE_ARCH_DIR "ARM64/Release")
+elseif(WIN_SPARKLE_PLATFORM MATCHES "^([Ww]in32|[Xx]86)$")
+  set(WIN_SPARKLE_ARCH_DIR "Release")
+else()
+  # x64, and anything unrecognised: keep the previous default.
+  set(WIN_SPARKLE_ARCH_DIR "x64/Release")
+endif()
+
+set(WIN_SPARKLE_BINARIES "${WIN_SPARKLE_DIR}/${WIN_SPARKLE_ARCH_DIR}/WinSparkle.dll")
+set(WIN_SPARKLE_LIBRARIES "${WIN_SPARKLE_DIR}/${WIN_SPARKLE_ARCH_DIR}/WinSparkle.lib")
+
+if(NOT EXISTS "${WIN_SPARKLE_LIBRARIES}")
+  message(FATAL_ERROR
+    "WinSparkle import library not found for platform "
+    "'${WIN_SPARKLE_PLATFORM}': ${WIN_SPARKLE_LIBRARIES}")
+endif()
 
 # Any new source files that you add to the plugin should be added here.
 list(APPEND PLUGIN_SOURCES
